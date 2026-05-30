@@ -26,6 +26,7 @@ class Ingredient:
             return False
         return self.name == other.name and self.unit == other.unit
     
+    
 class Recipe:
     def __init__(self, title: str, ingredients: list):
         self.title = title
@@ -52,4 +53,39 @@ class Recipe:
     def __str__(self):
         ingredients_str = ", ".join(str(i) for i in self.ingredients)
         return f"Рецепт '{self.title}': {ingredients_str}"
+    
+
+class ShoppingList:
+    def __init__(self):
+        self._items = []
+
+    def add_recipe(self, recipe: Recipe, portions: float):
+        if portions <= 0:
+            raise ValueError("Количество порций должно быть положительным")
+        scaled = recipe.scale(portions)
+        for ingredient in scaled.ingredients:
+            self._items.append((ingredient, recipe.title))
+
+    def remove_recipe(self, title: str):
+        self._items = [item for item in self._items if item[1] != title]
+
+    def get_list(self):
+        su = {}
+        for ingredient, recipe_title in self._items:
+            key = (ingredient.name, ingredient.unit)
+            if key in su:
+                su[key] += ingredient.quantity
+            else:
+                su[key] = ingredient.quantity
+        res = [Ingredient(name, quantity, unit) for (name, unit), quantity in su.items()]
+        res.sort(key=lambda x: x.name)
+        return res
+
+    def __add__(self, other):
+        if not isinstance(other, ShoppingList):
+            return NotImplemented
+        new_list = ShoppingList()
+        new_list._items = self._items.copy() + other._items.copy()
+        return new_list
+    
 
