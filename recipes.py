@@ -44,6 +44,8 @@ class Recipe:
         return isinstance(ratio, (int, float)) and ratio > 0
 
     def scale(self, ratio: float):
+        if ratio <= 0:
+            raise ValueError("Множитель должен быть положительным")
         new_ingredients = [Ingredient(i.name, i.quantity * ratio, i.unit) for i in self.ingredients]
         return Recipe(self.title, new_ingredients)
 
